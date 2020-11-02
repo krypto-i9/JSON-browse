@@ -1,2 +1,2 @@
-# JSON-browse
+# BrowseJSON
 CLI tool for create, edit, browse and do many more with JSON files
