@@ -1,0 +1,25 @@
+{
+  "name": "json_browse",
+  "version": "0.0.1",
+  "description": "cli tool for create, edit, browse and do many more with JSON files",
+  "main": "json_browse.js",
+  "scripts": {
+    "test": "node json_browse.js ./example.json"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krypto-i9/JSON-browser.git"
+  },
+  "keywords": [
+    "json_browse",
+    "json",
+    "cli"
+  ],
+  "author": "Navindu Dananga",
+  "license": "CC0-1.0",
+  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
+  "bugs": {
+    "url": "https://github.com/krypto-i9/JSON-browser/issues"
+  },
+  "homepage": "https://github.com/krypto-i9/JSON-browser#readme"
+}
