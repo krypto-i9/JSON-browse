@@ -177,7 +177,7 @@ try {
         case "about":
           const __pk_a = require("../package.json");
           console.log("Package Name : " + __pk_a.name);
-          console.log("Author       : " + __pk_a.author);
+          console.log("Author       : " + __pk_a.author["name"]);
           console.log("Version      : " + __pk_a.version);
           console.log("License      : " + __pk_a.license);
           console.log("Homepage     : " + __pk_a.homepage);
@@ -469,7 +469,7 @@ function showHelp(key) {
         " set new key [name]                => create new key in current object(pwd)\n" +
           " set new key_value [name] {?value} => create new key and set value in current object(pwd). if value not provide, then set to null\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "set");
+      console.log("\x1b[33m%s\x1b[0m", "pwd");
       console.log(
         "  pwd                              => print current JSON Object path\n"
       );
