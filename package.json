@@ -1,25 +1,28 @@
 {
-  "name": "json_browse",
-  "version": "0.0.1",
+  "name": "browsejson",
+  "version": "1.0.5",
   "description": "cli tool for create, edit, browse and do many more with JSON files",
-  "main": "json_browse.js",
+  "main": "browsejson.js",
   "scripts": {
-    "test": "node json_browse.js ./example.json"
+    "test": "node browsejson.js ../example.json",
+    "start" : "node browsejson.js"
+  },
+  "bin": {
+    "browsejson": "bin/browsejson"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/krypto-i9/JSON-browser.git"
+    "url": "git+https://github.com/krypto-i9/JSON-browse.git"
   },
   "keywords": [
-    "json_browse",
+    "browsejson",
     "json",
     "cli"
   ],
   "author": "Navindu Dananga",
   "license": "CC0-1.0",
-  "publishConfig": { "registry": "https://npm.pkg.github.com/" },
   "bugs": {
-    "url": "https://github.com/krypto-i9/JSON-browser/issues"
+    "url": "https://github.com/krypto-i9/JSON-browse/issues"
   },
-  "homepage": "https://github.com/krypto-i9/JSON-browser#readme"
+  "homepage": "https://github.com/krypto-i9/JSON-browse#readme"
 }
