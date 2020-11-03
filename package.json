@@ -1,6 +1,6 @@
 {
   "name": "browsejson",
-  "version": "1.0.10",
+  "version": "1.0.11",
   "description": "cli tool for create, edit, browse and do many more with JSON files",
   "main": "browsejson.js",
   "scripts": {
