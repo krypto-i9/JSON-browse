@@ -29,166 +29,183 @@ try {
       const command = prompt(
         "\x1b[33m" + "cmd(" + g_obj_disp + "): " + "\x1b[0m"
       );
-      const cmd_arr = command.split(" ");
-      switch (cmd_arr[0]) {
-        case "help":
-          showHelp(cmd_arr[1]);
-          break;
-        case "find":
-          if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
-            let data = [];
-            let is_error = false;
-            if (cmd_arr[1] === "like") {
-              if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
-                data = findLike(cmd_arr[2], cmd_arr[3]);
+      const cmd_arr = command.match(/(?:[^\s\"\']+|['"][^\"\']*["'])+/g);
+      if (!isNull(cmd_arr) && !isUndefined(cmd_arr)) {
+        cmd_arr.forEach((val, i) => {
+          cmd_arr[i] = val.replace(/["'"']+/g, "");
+        });
+        switch (cmd_arr[0]) {
+          case "help":
+            showHelp(cmd_arr[1]);
+            break;
+          case "find":
+            if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
+              let data = [];
+              let is_error = false;
+              if (cmd_arr[1] === "like") {
+                if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
+                  data = findLike(cmd_arr[2], cmd_arr[3]);
+                } else {
+                  is_error = true;
+                  console.log(
+                    "\x1b[31m[✘]\x1b[0m Error:: [key] is not provided"
+                  );
+                }
+              } else if (cmd_arr[1] === "exec") {
+                if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
+                  data = findExec(cmd_arr[2], cmd_arr[3]);
+                } else {
+                  is_error = true;
+                  console.log(
+                    "\x1b[31m[✘]\x1b[0m Error:: [key] is not provided"
+                  );
+                }
               } else {
-                is_error = true;
-                console.log("\x1b[31m[✘]\x1b[0m Error:: [key] is not provided");
+                data = findLike(cmd_arr[1], cmd_arr[2]);
               }
-            } else if (cmd_arr[1] === "exec") {
-              if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
-                data = findExec(cmd_arr[2], cmd_arr[3]);
-              } else {
-                is_error = true;
-                console.log("\x1b[31m[✘]\x1b[0m Error:: [key] is not provided");
+              if (!is_error) {
+                console.log("Found " + data.length + " Recorde(s)");
+                console.log(data);
               }
             } else {
-              data = findLike(cmd_arr[1], cmd_arr[2]);
+              console.log(
+                "\x1b[31m[✘]\x1b[0m Error:: Invalid Command. Type 'help print' to list 'find' commands"
+              );
             }
-            if (!is_error) {
-              console.log("Found " + data.length + " Recorde(s)");
-              console.log(data);
-            }
-          } else {
-            console.log(
-              "\x1b[31m[✘]\x1b[0m Error:: Invalid Command. Type 'help print' to list 'find' commands"
-            );
-          }
-          break;
-        case "list":
-          if (cmd_arr[1] === "all") {
-            if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
-              console.log(listAll(cmd_arr[2]));
-            } else {
-              console.log("\x1b[31m[✘]\x1b[0m Error:: [key] is not provided");
-            }
-          }
-          break;
-        case "print":
-          let isShowed = false;
-          switch (cmd_arr[1]) {
-            case "keys":
-              let keys = [];
-              if (cmd_arr[2] === "pass") {
-                console.log("\x1b[34m[•]\x1b[0m pass: true");
-                keys = getKeys(true);
+            break;
+          case "list":
+            if (cmd_arr[1] === "all") {
+              if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
+                console.log(listAll(cmd_arr[2]));
               } else {
-                console.log("\x1b[34m[•]\x1b[0m pass: false");
-                keys = getKeys(false);
+                console.log(
+                  "\x1b[31m[✘/home/navindu/node-v12/lib/node_modules/browsejson/bin/browsejson]\x1b[0m Error:: [key] is not provided"
+                );
               }
-              console.log(keys);
-              console.log(keys.length + " unique key(s).");
-              break;
-            case "all":
-              if (cmd_arr[2] === "length") {
-                isShowed = showLength("this");
-              } else {
-                console.log(root);
-              }
-              break;
-            case "this":
-              if (cmd_arr[2] === "length") {
-                isShowed = showLength("this");
-              } else {
+            }
+            break;
+          case "print":
+            let isShowed = false;
+            switch (cmd_arr[1]) {
+              case "keys":
+                let keys = [];
+                if (cmd_arr[2] === "pass") {
+                  console.log("\x1b[34m[•]\x1b[0m pass: true");
+                  keys = getKeys(true);
+                } else {
+                  console.log("\x1b[34m[•]\x1b[0m pass: false");
+                  keys = getKeys(false);
+                }
+                console.log(keys);
+                console.log(keys.length + " unique key(s).");
+                break;
+              case "all":
+                if (cmd_arr[2] === "length") {
+                  isShowed = showLength("this");
+                } else {
+                  console.log(root);
+                }
+                break;
+              case "this":
+                if (cmd_arr[2] === "length") {
+                  isShowed = showLength("this");
+                } else {
+                  console.log(g_obj_data);
+                }
+                break;
+              case "length":
+                isShowed = showLength(cmd_arr[2]);
+                break;
+              case "file":
+                console.log(root_file_path);
+                break;
+              case "":
+                console.log(
+                  "\x1b[34m[•]\x1b[0m Info:: Showing " +
+                    g_obj_path_str +
+                    " value"
+                );
                 console.log(g_obj_data);
-              }
-              break;
-            case "length":
-              isShowed = showLength(cmd_arr[2]);
-              break;
-            case "file":
-              console.log(root_file_path);
-              break;
-            case "":
-              console.log(
-                "\x1b[34m[•]\x1b[0m Info:: Showing " + g_obj_path_str + " value"
-              );
-              console.log(g_obj_data);
-              break;
-            case undefined:
-              console.log(
-                "\x1b[34m[•]\x1b[0m Info:: Showing " + g_obj_path_str + " value"
-              );
-              console.log(g_obj_data);
-              break;
-            default:
-              if (!isShowed) {
-                console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
-              }
-              break;
-          }
-          break;
-        case "save":
-          console.log("Not Available yet.");
-          break;
-        case "set":
-          if (cmd_arr[1] === "new") {
-            if (cmd_arr[2] === "key") {
-              if (!isUndefined(cmd_arr[4]) && !isEmpty(cmd_arr[4]))
-                addNewObject(cmd_arr[3], null, true);
-              else addNewObject(cmd_arr[3], null, false);
-            } else if (cmd_arr[2] === "key_value") {
-              addNewObject(cmd_arr[3], cmd_arr[4], false);
+                break;
+              case undefined:
+                console.log(
+                  "\x1b[34m[•]\x1b[0m Info:: Showing " +
+                    g_obj_path_str +
+                    " value"
+                );
+                console.log(g_obj_data);
+                break;
+              default:
+                if (!isShowed) {
+                  console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
+                }
+                break;
             }
-          }
-          break;
-        case "copy":
-          console.log("Not Available yet.");
-          break;
-        case "pwd":
-          console.log(g_obj_path_str);
-          break;
-        case "cd":
-          if (cmd_arr[1] === "~") {
-            g_obj_data = root;
-            g_obj_path_str = "root";
-            g_obj_disp = "~";
-          } else if (cmd_arr[1] === "..") {
-            if (g_obj_path_str == "root") {
-              console.log("\x1b[34m[•]\x1b[0m Info:: Already in root");
+            break;
+          case "save":
+            console.log("Not Available yet.");
+            break;
+          case "set":
+            if (cmd_arr[1] === "new") {
+              if (cmd_arr[2] === "key") {
+                if (!isUndefined(cmd_arr[4]) && !isEmpty(cmd_arr[4]))
+                  addNewObject(cmd_arr[3], null, true);
+                else addNewObject(cmd_arr[3], null, false);
+              } else if (cmd_arr[2] === "key_value") {
+                addNewObject(cmd_arr[3], cmd_arr[4], false);
+              }
+            }
+            break;
+          case "copy":
+            console.log("Not Available yet.");
+            break;
+          case "pwd":
+            console.log(g_obj_path_str);
+            break;
+          case "cd":
+            if (cmd_arr[1] === "~") {
+              g_obj_data = root;
+              g_obj_path_str = "root";
+              g_obj_disp = "~";
+            } else if (cmd_arr[1] === "..") {
+              if (g_obj_path_str == "root") {
+                console.log("\x1b[34m[•]\x1b[0m Info:: Already in root");
+              } else {
+                pathBack();
+              }
+            } else if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
+              pathNavigate(cmd_arr[1]);
             } else {
-              pathBack();
+              console.log(
+                "\x1b[31m[✘]\x1b[0m Error:: Invalid Command. Type 'help cd' to list 'cd' commands"
+              );
             }
-          } else if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
-            pathNavigate(cmd_arr[1]);
-          } else {
-            console.log(
-              "\x1b[31m[✘]\x1b[0m Error:: Invalid Command. Type 'help cd' to list 'cd' commands"
-            );
-          }
-          break;
-        case "clear":
-          process.stdout.write("\033c");
-          break;
-        case "version":
-          const __pk_v = require("../package.json");
-          console.log(__pk_v.version);
-          break;
-        case "about":
-          const __pk_a = require("../package.json");
-          console.log("Package Name : " + __pk_a.name);
-          console.log("Author       : " + __pk_a.author["name"]);
-          console.log("Version      : " + __pk_a.version);
-          console.log("License      : " + __pk_a.license);
-          console.log("Homepage     : " + __pk_a.homepage);
-          console.log("Git repo     : " + __pk_a.repository.url);
-          console.log("Issues       : " + __pk_a.bugs.url);
-          break;
-        case "exit":
-          return;
-        default:
-          console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
-          break;
+            break;
+          case "clear":
+            process.stdout.write("\033c");
+            break;
+          case "version":
+            const __pk_v = require("../package.json");
+            console.log(__pk_v.version);
+            break;
+          case "about":
+            const __pk_a = require("../package.json");
+            console.log("Package Name : " + __pk_a.name);
+            console.log("Author       : " + __pk_a.author["name"]);
+            console.log("Version      : " + __pk_a.version);
+            console.log("License      : " + __pk_a.license);
+            console.log("Homepage     : " + __pk_a.homepage);
+            console.log("Git repo     : " + __pk_a.repository.url);
+            console.log("Issues       : " + __pk_a.bugs.url);
+            break;
+          case "exit":
+            return;
+          default:
+            console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
+            break;
+        }
+      } else {
+        console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
       }
     }
   } else {
@@ -213,12 +230,12 @@ function listAll(key) {
   let data_arr = [];
   if (isArray(g_obj_data)) {
     g_obj_data.forEach((res, _index) => {
-      if (!isUndefined(res[key])) {
+      if (!isUndefined(res[key]) && !data_arr.includes(res[key])) {
         data_arr.push(res[key]);
       }
     });
   } else {
-    if (!isUndefined(g_obj_data[key])) {
+    if (!isUndefined(g_obj_data[key]) && !data_arr.includes(g_obj_data[key])) {
       data_arr.push(g_obj_data[key]);
     }
   }
@@ -227,6 +244,7 @@ function listAll(key) {
 
 function findLike(key, value) {
   let data_arr = [];
+  value = typeof value === "string" ? value.toLowerCase() : value;
   if (isArray(g_obj_data)) {
     g_obj_data.forEach((res, _index) => {
       if (!isUndefined(res[key]) && !isNull(res[key])) {
@@ -247,11 +265,11 @@ function findLike(key, value) {
 
 function findExec(key, value) {
   let data_arr = [];
-  console.log("exec");
+  value = typeof value === "string" ? value.toLowerCase() : value;
   if (isArray(g_obj_data)) {
     g_obj_data.forEach((res, _index) => {
       if (!isUndefined(res[key]) && !isNull(res[key])) {
-        if (res[key].toLowerCase() === value) {
+        if (res[key].toLowerCase().includes(value)) {
           data_arr.push(res);
         }
       }
@@ -420,7 +438,8 @@ function showHelp(key) {
       console.log(
         "  find [key] {value}               => find all Objects with matching [key] and {value}\n" +
           "  find like [key] {value}          => find all Objects with like matching [key] and {value}\n" +
-          "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}"
+          "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}\n\n" +
+          "  (Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')"
       );
       break;
     case "save":
@@ -462,7 +481,8 @@ function showHelp(key) {
       console.log(
         "  find [key] {value}               => find all Objects with matching [key] and {value}\n" +
           "  find like [key] {value}          => find all Objects with like matching [key] and {value}\n" +
-          "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}\n"
+          "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}\n" +
+          "  (Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')\n"
       );
       console.log("\x1b[33m%s\x1b[0m", "set");
       console.log(
