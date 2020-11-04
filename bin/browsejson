@@ -1,6 +1,6 @@
 #! /usr/bin/env node
 
-const { isUndefined, isObject, isArray, isNull, isEmpty } = require("lodash");
+const { isUndefined, isObject, isNull, isArray, isEmpty } = require("lodash");
 const prompt = require("prompt-sync")({ sigint: true });
 const fs = require("fs");
 
@@ -37,11 +37,11 @@ try {
             showHelp(cmd_arr[1]);
             break;
           case "find":
-            if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
+            if (!isEmpty(cmd_arr[1]) && !isUndefined(cmd_arr[1])) {
               let data = [];
               let is_error = false;
               if (cmd_arr[1] === "like") {
-                if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
+                if (!isEmpty(cmd_arr[2]) && !isUndefined(cmd_arr[2])) {
                   data = findLike(cmd_arr[2], cmd_arr[3]);
                   clipboard = data;
                 } else {
@@ -49,7 +49,7 @@ try {
                   print_error("[key] not provided");
                 }
               } else if (cmd_arr[1] === "exec") {
-                if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
+                if (!isEmpty(cmd_arr[2]) && !isUndefined(cmd_arr[2])) {
                   data = findExec(cmd_arr[2], cmd_arr[3]);
                   clipboard = data;
                 } else {
@@ -61,21 +61,22 @@ try {
                 clipboard = data;
               }
               if (!is_error) {
-                console.log("Found " + data.length + " Recorde(s)");
                 console.log(data);
+                console.log("Found " + data.length + " Recorde(s)");
               }
             } else {
               print_error(
-                "invalid command. type 'help print' to list 'find' commands"
+                "invalid command. type 'help find' to list 'find' commands"
               );
             }
             break;
           case "list":
             if (cmd_arr[1] === "all") {
-              if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
+              if (!isEmpty(cmd_arr[2]) && !isUndefined(cmd_arr[2])) {
                 let data = listAll(cmd_arr[2]);
                 clipboard = data;
                 console.log(data);
+                print_info("Found " + data.length + " Recorde(s)");
               } else {
                 print_error("[key] not provided");
               }
@@ -197,9 +198,6 @@ try {
               print_error("invalid command");
             }
             break;
-          case "copy":
-            console.log("Not Available yet.");
-            break;
           case "pwd":
             console.log(g_obj_path_str);
             break;
@@ -214,7 +212,7 @@ try {
               } else {
                 pathBack();
               }
-            } else if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
+            } else if (!isEmpty(cmd_arr[1]) && !isUndefined(cmd_arr[1])) {
               pathNavigate(cmd_arr[1]);
             } else {
               print_error(
@@ -273,6 +271,8 @@ function listAll(key) {
   } else {
     if (!isUndefined(g_obj_data[key]) && !data_arr.includes(g_obj_data[key])) {
       data_arr.push(g_obj_data[key]);
+    } else {
+      print_error("invalid [key]");
     }
   }
   return data_arr;
@@ -310,6 +310,8 @@ function findLike(key, value) {
           data_arr.push(g_obj_data[key]);
         }
       });
+    } else {
+      print_error("invalid [key]");
     }
   }
   return data_arr;
@@ -331,6 +333,8 @@ function findExec(key, value) {
       if (JSON.stringify(g_obj_data[key]).toLowerCase() === value) {
         data_arr.push(g_obj_data[key]);
       }
+    } else {
+      print_error("invalid [key]");
     }
   }
   return data_arr;
@@ -367,7 +371,9 @@ function saveToFile(filepath, data) {
   if (!isUndefined(filepath) && !isNull(filepath)) {
     let fileIsExist = fs.existsSync(filepath);
     if (fileIsExist) {
-      let inp = prompt("File already exist. Overwrite existing file? (yes/no)");
+      let inp = prompt(
+        "File already exist. Overwrite existing file? (yes/no): "
+      );
       if (inp === "yes" || inp === "y") {
         fs.writeFileSync(filepath, data);
         print_success("file saved successfully");
@@ -386,8 +392,9 @@ function saveToFile(filepath, data) {
 function removeKey(key) {
   if (Object.keys(eval(g_obj_path_str)).includes(key)) {
     delete g_obj_data[key];
+    print_info("deleted " + `${g_obj_path_str}['${key}']`);
   } else {
-    print_error("key doesn't exist.");
+    print_error("invalid [key]");
   }
 }
 
@@ -403,7 +410,7 @@ function pathNavigate(cmd) {
         g_obj_path_str += "['" + value + "']";
         return true;
       } else {
-        print_error("invalid path");
+        print_error("invalid [key]");
         return false;
       }
     }
@@ -423,7 +430,7 @@ function pathBack() {
         g_obj_disp += "> " + value;
         g_obj_path_str += "['" + value + "']";
       } else {
-        print_error("invalid path");
+        print_error("invalid [key]");
         return;
       }
     }
