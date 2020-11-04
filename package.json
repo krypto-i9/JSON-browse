@@ -1,11 +1,11 @@
 {
   "name": "browsejson",
-  "version": "1.0.15",
+  "version": "1.0.16",
   "description": "explore JSON files in cli",
   "main": "bin/browsejson",
   "scripts": {
     "test": "node ./bin/browsejson ./example.json",
-    "start" : "node ./bin/browsejson"
+    "start": "node ./bin/browsejson"
   },
   "bin": {
     "browsejson": "bin/browsejson"
@@ -20,11 +20,15 @@
     "cli"
   ],
   "author": {
-      "name" : "Navindu Dananga"
+    "name": "Navindu Dananga"
   },
   "license": "CC0-1.0",
   "bugs": {
     "url": "https://github.com/krypto-i9/browsejson/issues"
   },
-  "homepage": "https://github.com/krypto-i9/browsejson#readme"
+  "homepage": "https://github.com/krypto-i9/browsejson#readme",
+  "dependencies": {
+    "lodash": "^4.17.20",
+    "prompt": "^1.0.0"
+  }
 }
