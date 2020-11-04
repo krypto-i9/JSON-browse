@@ -11,23 +11,21 @@ let clipboard = "";
 let g_obj_data;
 let g_obj_path_str;
 let g_obj_disp;
-let root = [];
+let root;
 
 try {
   if (fs.existsSync(root_file_path)) {
-    console.log(
-      "\x1b[32m%s\x1b[0m",
-      "File:: " + root_file_path + "\nConnection:: Ok"
-    );
+    print_c_success("File:: " + root_file_path);
 
     root = JSON.parse(fs.readFileSync(root_file_path));
+    print_c_success("Format:: JSON");
     g_obj_data = root;
     g_obj_path_str = "root";
     g_obj_disp = "~";
 
     while (1) {
       const command = prompt(
-        "\x1b[33m" + "cmd(" + g_obj_disp + "): " + "\x1b[0m"
+        "\x1b[33m" + "browsejson(" + g_obj_disp + "): " + "\x1b[0m"
       );
       const cmd_arr = command.match(/(?:[^\s\"\']+|['"][^\"\']*["'])+/g);
       if (!isNull(cmd_arr) && !isUndefined(cmd_arr)) {
@@ -45,56 +43,60 @@ try {
               if (cmd_arr[1] === "like") {
                 if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
                   data = findLike(cmd_arr[2], cmd_arr[3]);
+                  clipboard = data;
                 } else {
                   is_error = true;
-                  console.log(
-                    "\x1b[31m[✘]\x1b[0m Error:: [key] is not provided"
-                  );
+                  print_error("[key] not provided");
                 }
               } else if (cmd_arr[1] === "exec") {
                 if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
                   data = findExec(cmd_arr[2], cmd_arr[3]);
+                  clipboard = data;
                 } else {
                   is_error = true;
-                  console.log(
-                    "\x1b[31m[✘]\x1b[0m Error:: [key] is not provided"
-                  );
+                  print_error("[key] not provided");
                 }
               } else {
                 data = findLike(cmd_arr[1], cmd_arr[2]);
+                clipboard = data;
               }
               if (!is_error) {
                 console.log("Found " + data.length + " Recorde(s)");
                 console.log(data);
               }
             } else {
-              console.log(
-                "\x1b[31m[✘]\x1b[0m Error:: Invalid Command. Type 'help print' to list 'find' commands"
+              print_error(
+                "invalid command. type 'help print' to list 'find' commands"
               );
             }
             break;
           case "list":
             if (cmd_arr[1] === "all") {
               if (cmd_arr[2] !== "" && !isUndefined(cmd_arr[2])) {
-                console.log(listAll(cmd_arr[2]));
+                let data = listAll(cmd_arr[2]);
+                clipboard = data;
+                console.log(data);
               } else {
-                console.log(
-                  "\x1b[31m[✘/home/navindu/node-v12/lib/node_modules/browsejson/bin/browsejson]\x1b[0m Error:: [key] is not provided"
-                );
+                print_error("[key] not provided");
               }
             }
             break;
           case "print":
             let isShowed = false;
             switch (cmd_arr[1]) {
+              case "clipboard":
+                printClipboard();
+                break;
               case "keys":
                 let keys = [];
                 if (cmd_arr[2] === "pass") {
-                  console.log("\x1b[34m[•]\x1b[0m pass: true");
+                  print_info("pass: true");
                   keys = getKeys(true);
+                  clipboard = keys;
                 } else {
-                  console.log("\x1b[34m[•]\x1b[0m pass: false");
+                  print_info("pass: false");
                   keys = getKeys(false);
+                  clipboard = keys;
                 }
                 console.log(keys);
                 console.log(keys.length + " unique key(s).");
@@ -120,40 +122,79 @@ try {
                 console.log(root_file_path);
                 break;
               case "":
-                console.log(
-                  "\x1b[34m[•]\x1b[0m Info:: Showing " +
-                    g_obj_path_str +
-                    " value"
-                );
+                print_info("Showing " + g_obj_path_str + " :");
                 console.log(g_obj_data);
                 break;
               case undefined:
-                console.log(
-                  "\x1b[34m[•]\x1b[0m Info:: Showing " +
-                    g_obj_path_str +
-                    " value"
-                );
+                print_info("Showing " + g_obj_path_str + " :");
                 console.log(g_obj_data);
                 break;
               default:
                 if (!isShowed) {
-                  console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
+                  print_error("invalid command");
                 }
                 break;
             }
             break;
           case "save":
-            console.log("Not Available yet.");
+            if (cmd_arr[1] === "clipboard") {
+              if (
+                !isUndefined(cmd_arr[2]) &&
+                !isNull(cmd_arr[2]) &&
+                !isEmpty(cmd_arr[2])
+              ) {
+                if (
+                  !isEmpty(clipboard) &&
+                  !isNull(clipboard) &&
+                  !isUndefined(clipboard)
+                ) {
+                  saveToFile(cmd_arr[2], JSON.stringify(clipboard));
+                } else {
+                  print_warning("Nothing to save in clipboard");
+                }
+              } else {
+                print_error("filepath not provided");
+              }
+            } else if (cmd_arr[1] === "this") {
+              if (
+                !isUndefined(cmd_arr[2]) &&
+                !isNull(cmd_arr[2]) &&
+                !isEmpty(cmd_arr[2])
+              ) {
+                saveToFile(cmd_arr[2], JSON.stringify(g_obj_data));
+              } else {
+                print_error("filepath not provided");
+              }
+            } else if (cmd_arr[1] === "root") {
+              if (
+                !isUndefined(cmd_arr[2]) &&
+                !isNull(cmd_arr[2]) &&
+                !isEmpty(cmd_arr[2])
+              ) {
+                saveToFile(cmd_arr[2], JSON.stringify(root));
+              } else {
+                print_error("filepath not provided");
+              }
+            } else {
+              print_error("invalid command");
+            }
             break;
           case "set":
-            if (cmd_arr[1] === "new") {
-              if (cmd_arr[2] === "key") {
-                if (!isUndefined(cmd_arr[4]) && !isEmpty(cmd_arr[4]))
-                  addNewObject(cmd_arr[3], null, true);
-                else addNewObject(cmd_arr[3], null, false);
-              } else if (cmd_arr[2] === "key_value") {
-                addNewObject(cmd_arr[3], cmd_arr[4], false);
+            if (cmd_arr[1] === "key") {
+              if (!isUndefined(cmd_arr[3]) && !isEmpty(cmd_arr[3]))
+                addNewObject(cmd_arr[2], null, true);
+              else addNewObject(cmd_arr[2], null, false);
+            } else if (cmd_arr[1] === "key_value") {
+              addNewObject(cmd_arr[2], cmd_arr[3], false);
+            }
+            break;
+          case "remove":
+            if (cmd_arr[1] === "key") {
+              if (!isUndefined(cmd_arr[2]) && !isNull(cmd_arr[2])) {
+                removeKey(cmd_arr[2]);
               }
+            } else {
+              print_error("invalid command");
             }
             break;
           case "copy":
@@ -169,15 +210,15 @@ try {
               g_obj_disp = "~";
             } else if (cmd_arr[1] === "..") {
               if (g_obj_path_str == "root") {
-                console.log("\x1b[34m[•]\x1b[0m Info:: Already in root");
+                print_info("already in root");
               } else {
                 pathBack();
               }
             } else if (cmd_arr[1] !== "" && !isUndefined(cmd_arr[1])) {
               pathNavigate(cmd_arr[1]);
             } else {
-              console.log(
-                "\x1b[31m[✘]\x1b[0m Error:: Invalid Command. Type 'help cd' to list 'cd' commands"
+              print_error(
+                "invalid command. type 'help cd' to list 'cd' commands"
               );
             }
             break;
@@ -201,29 +242,24 @@ try {
           case "exit":
             return;
           default:
-            console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
+            print_error("invalid command");
             break;
         }
       } else {
-        console.log("\x1b[31m[✘]\x1b[0m Error:: Invalid Command");
+        print_error("invalid command");
       }
     }
   } else {
-    console.log(
-      "\x1b[31m%s\x1b[0m",
-      "File:: " + root_file_path + "\nError:: No Such File"
-    );
+    print_c_error("File:: " + root_file_path + "\nError:: No Such File");
   }
 } catch (error) {
   if (!isArray(root) && !isObject(root)) {
-    console.log(
-      "\x1b[31m%s\x1b[0m ",
-      "Error:: connected file is not a JSON file"
-    );
-    console.log("exiting...");
+    print_c_error("Error:: Provided file is not a JSON file");
   } else {
-    console.log("\x1b[31m%s\x1b[0m ", error);
+    print_c_error("Error:: Unknown");
+    print_c_error(error);
   }
+  print_c_error("Exit.");
 }
 
 function listAll(key) {
@@ -244,20 +280,36 @@ function listAll(key) {
 
 function findLike(key, value) {
   let data_arr = [];
-  value = typeof value === "string" ? value.toLowerCase() : value;
+  let value_arr = [];
+  if (typeof value === "string") {
+    value = value.toLocaleLowerCase();
+    value = value.trim();
+    value_arr = value.split(" ");
+  }
+
   if (isArray(g_obj_data)) {
-    g_obj_data.forEach((res, _index) => {
+    g_obj_data.forEach((res) => {
       if (!isUndefined(res[key]) && !isNull(res[key])) {
-        if (res[key].toLowerCase().indexOf(value) !== -1) {
-          data_arr.push(res);
-        }
+        value_arr.forEach((v) => {
+          if (
+            res[key].toLowerCase().indexOf(v) !== -1 &&
+            !data_arr.includes(res)
+          ) {
+            data_arr.push(res);
+          }
+        });
       }
     });
   } else {
     if (!isUndefined(g_obj_data[key]) && !isNull(g_obj_data[key])) {
-      if (JSON.stringify(g_obj_data[key]).toLowerCase().indexOf(value) !== -1) {
-        data_arr.push(g_obj_data[key]);
-      }
+      value_arr.forEach((v) => {
+        if (
+          JSON.stringify(g_obj_data[key]).toLowerCase().indexOf(v) !== -1 &&
+          !data_arr.includes(g_obj_data[key])
+        ) {
+          data_arr.push(g_obj_data[key]);
+        }
+      });
     }
   }
   return data_arr;
@@ -306,6 +358,39 @@ function getKeys(pass) {
   return keys_arr;
 }
 
+function printClipboard() {
+  if (!isEmpty(clipboard)) console.log(clipboard);
+  else print_info("clipboard is empty");
+}
+
+function saveToFile(filepath, data) {
+  if (!isUndefined(filepath) && !isNull(filepath)) {
+    let fileIsExist = fs.existsSync(filepath);
+    if (fileIsExist) {
+      let inp = prompt("File already exist. Overwrite existing file? (yes/no)");
+      if (inp === "yes" || inp === "y") {
+        fs.writeFileSync(filepath, data);
+        print_success("file saved successfully");
+      } else {
+        print_warning("operation canceled");
+      }
+    } else {
+      fs.writeFileSync(filepath, data);
+      print_success("file saved successfully");
+    }
+  } else {
+    print_error("filepath isn't provided");
+  }
+}
+
+function removeKey(key) {
+  if (Object.keys(eval(g_obj_path_str)).includes(key)) {
+    delete g_obj_data[key];
+  } else {
+    print_error("key doesn't exist.");
+  }
+}
+
 function pathNavigate(cmd) {
   const obj_split = cmd.split(">");
   obj_split.every((value, index) => {
@@ -318,7 +403,7 @@ function pathNavigate(cmd) {
         g_obj_path_str += "['" + value + "']";
         return true;
       } else {
-        console.log("\x1b[31m[✘]\x1b[0m Error:: Path invalid");
+        print_error("invalid path");
         return false;
       }
     }
@@ -338,11 +423,12 @@ function pathBack() {
         g_obj_disp += "> " + value;
         g_obj_path_str += "['" + value + "']";
       } else {
-        console.log("\x1b[31m[✘]\x1b[0m Error:: Path invalid");
+        print_error("invalid path");
         return;
       }
     }
   });
+  g_obj_data = eval(g_obj_path_str);
 }
 
 function addNewObject(key, value, isWarn) {
@@ -357,9 +443,7 @@ function addNewObject(key, value, isWarn) {
       val = value;
     } else {
       if (value !== null)
-        console.log(
-          "\x1b[33m[?]\x1b[0m  Warning:: value not provided. Set value to null"
-        );
+        print_warning("value not provided. Set value to null");
     }
     let tmp;
     if (!isNull(val) && typeof val !== "number" && typeof value !== "boolean") {
@@ -368,13 +452,13 @@ function addNewObject(key, value, isWarn) {
       tmp = g_obj_path_str + "['" + key + "'] = " + val;
     }
     eval(tmp);
-    console.log("\x1b[32m[✔]\x1b[0m Success:: Set " + tmp);
+    print_success("Set " + tmp);
     if (isWarn)
-      console.log(
-        '\x1b[33m[?]\x1b[0m Warning:: value provided is ignored. use "set new key_value" to set key and value both'
+      print_warning(
+        'value provided is ignored. use "set new key_value" to set key and value both'
       );
   } else {
-    console.log("\x1b[31m[✘]\x1b[0m Error:: Key value not provided.");
+    print_error("[key] not provided.");
   }
 }
 
@@ -384,24 +468,22 @@ function showLength(cmd) {
       if (!isNull(g_obj_data) && !isUndefined(g_obj_data)) {
         console.log(g_obj_data.length);
       } else {
-        console.log("\x1b[34m[•]\x1b[0m Info:: null value. no length");
+        print_info("null value. no length");
       }
       break;
     case "all":
       if (!isNull(root) && !isUndefined(root)) {
         console.log(root.length);
       } else {
-        console.log("\x1b[34m[•]\x1b[0m Info:: null value. no length");
+        print_info("null value. no length");
       }
       break;
     default:
-      console.log(
-        "\x1b[34m[•]\x1b[0m Info:: Showing " + g_obj_path_str + " value length"
-      );
+      print_info("Showing " + g_obj_path_str + " value length");
       if (!isNull(g_obj_data) && !isUndefined(g_obj_data)) {
         console.log(g_obj_data.length);
       } else {
-        console.log("\x1b[34m[•]\x1b[0m Info:: null value. no length");
+        print_info("null value. no length");
       }
       break;
   }
@@ -413,6 +495,7 @@ function showHelp(key) {
     case "print":
       console.log(
         "  print                            => print value of current object(pwd)\n" +
+          "  print clipboard                  => print value in clipboard\n" +
           "  print keys                       => print all unique keys in JSON Object\n" +
           "  print keys pass                  => print all unique keys inside JSON Object Array\n" +
           "  print this                       => print value of current object(pwd)\n" +
@@ -443,11 +526,16 @@ function showHelp(key) {
       );
       break;
     case "save":
+      console.log(
+        "  save clipboard [filepath]        => write data in clipboard to given file\n" +
+          "  save this [filepath]             => write this(pwd) to given file\n" +
+          "  save root [filepath]             => write data in root(all data) to given file"
+      );
       break;
     case "set":
       console.log(
-        " set new key [name]                => create new key in current object(pwd)\n" +
-          " set new key_value [name] {?value} => create new key and set value in current object(pwd). if value not provide, then set to null"
+        " set key [name]                => create new key in current object(pwd)\n" +
+          " set key_value [name] {?value} => create new key and set value in current object(pwd). if value not provide, then set to null"
       );
       break;
     case "pwd":
@@ -455,48 +543,97 @@ function showHelp(key) {
         "  pwd                              => print current JSON Object path"
       );
       break;
+    case "remove":
+      console.log(
+        "  remove [key]                     => remove [key] and it's value from JSON object"
+      );
+      break;
     default:
-      console.log("\x1b[33m%s\x1b[0m", "print");
+      print_c_warning("print");
       console.log(
         "  print                            => print value of current object(pwd)\n" +
+          "  print clipboard                  => print value in clipboard\n" +
           "  print keys                       => print all unique keys in JSON Object\n" +
           "  print keys pass                  => print all unique keys inside JSON Object Array\n" +
+          "  print clipboard                  => print clipboard value\n" +
           "  print this                       => print value of current object(pwd)\n" +
           "  print this length                => print length of current object(pwd)\n" +
           "  print all                        => print value of root object\n" +
           "  print all length                 => print length of root object\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "list");
+      print_c_warning("list");
       console.log(
         "  list all [key]                   => list all values in given [key]\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "cd");
+      print_c_warning("cd");
       console.log(
         "  cd ~                             => navigate to root\n" +
           "  cd [key]                         => navigate to root[key]\n" +
           "  cd [key1>key2>key3]              => navigate to root[key1][key2][key3]. (no spaces between '>')\n" +
           "  cd ..                            => navigate one key back\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "find");
+      print_c_warning("find");
       console.log(
         "  find [key] {value}               => find all Objects with matching [key] and {value}\n" +
           "  find like [key] {value}          => find all Objects with like matching [key] and {value}\n" +
           "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}\n" +
           "  (Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "set");
+      print_c_warning("set");
       console.log(
-        " set new key [name]                => create new key in current object(pwd)\n" +
-          " set new key_value [name] {?value} => create new key and set value in current object(pwd). if value not provide, then set to null\n"
+        " set key [name]                => create new key in current object(pwd)\n" +
+          " set key_value [name] {?value} => create new key and set value in current object(pwd). if value not provide, then set to null\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "pwd");
+      print_c_warning("remove");
+      console.log(
+        "  remove [key]                     => remove [key] and it's value from JSON object\n"
+      );
+      print_c_warning("save");
+      console.log(
+        "  save clipboard [filepath]        => write data in clipboard to given file\n" +
+          "  save this [filepath]             => write this(pwd) to given file\n" +
+          "  save root [filepath]             => write data in root(all data) to given file\n"
+      );
+      print_c_warning("pwd");
       console.log(
         "  pwd                              => print current JSON Object path\n"
       );
-      console.log("\x1b[33m%s\x1b[0m", "clear");
-      console.log("  clear                            => Clear console\n");
+      print_c_warning("clear");
+      console.log("  clear                            => clear console\n");
 
-      console.log("\x1b[33m%s\x1b[0m", "exit");
-      console.log("  exit                             => Exit from app\n");
+      print_c_warning("exit");
+      console.log("  exit                             => exit\n");
   }
+}
+
+function print_success(msg) {
+  console.log("\x1b[32m[✔]Success::\x1b[0m " + msg);
+}
+
+function print_error(msg) {
+  console.log("\x1b[31m[✘]Error::\x1b[0m " + msg);
+}
+
+function print_info(msg) {
+  console.log("\x1b[34m[•]Info::\x1b[0m " + msg);
+}
+
+function print_warning(msg) {
+  console.log("\x1b[33m[?]Warning::\x1b[0m " + msg);
+}
+
+function print_c_success(msg) {
+  console.log("\x1b[32m%s\x1b[0m", msg);
+}
+
+function print_c_error(msg) {
+  console.log("\x1b[31m%s\x1b[0m", msg);
+}
+
+function print_c_info(msg) {
+  console.log("\x1b[34m%s\x1b[0m", msg);
+}
+
+function print_c_warning(msg) {
+  console.log("\x1b[33m%s\x1b[0m", msg);
 }
