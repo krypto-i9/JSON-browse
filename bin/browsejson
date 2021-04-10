@@ -162,7 +162,8 @@ try {
                 !isNull(cmd_arr[2]) &&
                 !isEmpty(cmd_arr[2])
               ) {
-                saveToFile(cmd_arr[2], JSON.stringify(g_obj_data));
+                saveToFile(cmd_arr[2], JSON.stringify(g_obj_data, null, 2));
+                
               } else {
                 print_error("filepath not provided");
               }
@@ -172,7 +173,7 @@ try {
                 !isNull(cmd_arr[2]) &&
                 !isEmpty(cmd_arr[2])
               ) {
-                saveToFile(cmd_arr[2], JSON.stringify(root));
+                saveToFile(cmd_arr[2], JSON.stringify(root, null, 2));
               } else {
                 print_error("filepath not provided");
               }
