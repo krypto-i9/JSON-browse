@@ -149,7 +149,7 @@ try {
                   !isNull(clipboard) &&
                   !isUndefined(clipboard)
                 ) {
-                  saveToFile(cmd_arr[2], JSON.stringify(clipboard));
+                  saveToFile(cmd_arr[2], JSON.stringify(clipboard, null, 2));
                 } else {
                   print_warning("Nothing to save in clipboard");
                 }
