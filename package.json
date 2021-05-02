@@ -1,6 +1,6 @@
 {
   "name": "browsejson",
-  "version": "1.0.17",
+  "version": "1.0.18",
   "description": "explore JSON files in cli",
   "main": "bin/browsejson",
   "scripts": {

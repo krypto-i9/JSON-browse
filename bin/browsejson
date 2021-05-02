@@ -163,7 +163,6 @@ try {
                 !isEmpty(cmd_arr[2])
               ) {
                 saveToFile(cmd_arr[2], JSON.stringify(g_obj_data, null, 2));
-                
               } else {
                 print_error("filepath not provided");
               }
@@ -324,7 +323,7 @@ function findExec(key, value) {
   if (isArray(g_obj_data)) {
     g_obj_data.forEach((res, _index) => {
       if (!isUndefined(res[key]) && !isNull(res[key])) {
-        if (res[key].toLowerCase().includes(value)) {
+        if (res[key].toLowerCase() === value) {
           data_arr.push(res);
         }
       }
@@ -530,7 +529,7 @@ function showHelp(key) {
         "  find [key] {value}               => find all Objects with matching [key] and {value}\n" +
           "  find like [key] {value}          => find all Objects with like matching [key] and {value}\n" +
           "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}\n\n" +
-          "  (Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')"
+          "  \x1b[34m(Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')\x1b[0m\n"
       );
       break;
     case "save":
@@ -585,7 +584,7 @@ function showHelp(key) {
         "  find [key] {value}               => find all Objects with matching [key] and {value}\n" +
           "  find like [key] {value}          => find all Objects with like matching [key] and {value}\n" +
           "  find exec [key] {value}          => find all Objects with exact matching [key] and {value}\n" +
-          "  (Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')\n"
+          "  \x1b[34m(Note: for space seperated values use quotes. ex: \"hello world\" or 'hello world')\x1b[0m\n"
       );
       print_c_warning("set");
       console.log(
